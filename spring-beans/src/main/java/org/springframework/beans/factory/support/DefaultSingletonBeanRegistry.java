@@ -136,9 +136,13 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	protected void addSingleton(String beanName, Object singletonObject) {
 		synchronized (this.singletonObjects) {
+			//加入缓存
 			this.singletonObjects.put(beanName, singletonObject);
+			//将ObjectFactory移除缓存
 			this.singletonFactories.remove(beanName);
+			//将创建中的缓存移除
 			this.earlySingletonObjects.remove(beanName);
+			//保存已注册的bean
 			this.registeredSingletons.add(beanName);
 		}
 	}
@@ -185,10 +189,13 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 			if (singletonObject == null && allowEarlyReference) {
 				synchronized (this.singletonObjects) {
 					// Consistent creation of early reference within full singleton lock
+					//从缓存中加载
 					singletonObject = this.singletonObjects.get(beanName);
 					if (singletonObject == null) {
+						//从创建过程中的缓存中加载
 						singletonObject = this.earlySingletonObjects.get(beanName);
 						if (singletonObject == null) {
+							//获取ObjectFactory，再加载
 							ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 							if (singletonFactory != null) {
 								singletonObject = singletonFactory.getObject();
