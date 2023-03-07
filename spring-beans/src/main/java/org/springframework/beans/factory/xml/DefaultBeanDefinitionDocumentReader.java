@@ -129,6 +129,8 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		this.delegate = createDelegate(getReaderContext(), root, parent);
 
 		if (this.delegate.isDefaultNamespace(root)) {
+			// [my comments] 如果有<beans profile="dev" >
+			// [my comments] 则激活与web.xml总的spring.active.profile相等的profile
 			String profileSpec = root.getAttribute(PROFILE_ATTRIBUTE);
 			if (StringUtils.hasText(profileSpec)) {
 				String[] specifiedProfiles = StringUtils.tokenizeToStringArray(
@@ -191,6 +193,8 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			importBeanDefinitionResource(ele);
 		}
 		else if (delegate.nodeNameEquals(ele, ALIAS_ELEMENT)) {
+			// [my comments] 加载xml时，也会扫描所有的<alias>标签，以<alias, name>为键值对放入到aliasMap中
+			// get("bean2")时，先通过此键值对，获取name，在根据name获取/创建bean
 			processAliasRegistration(ele);
 		}
 		else if (delegate.nodeNameEquals(ele, BEAN_ELEMENT)) {
@@ -303,8 +307,10 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * and registering it with the registry.
 	 */
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
+		// [my comments] 解析<bean>下的所有属性和子标签，生成BeanDefinition封装到holder中
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
 		if (bdHolder != null) {
+			// [my comments] 解析<bean>下的自定义attribute和子标签
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
 				// Register the final decorated instance.

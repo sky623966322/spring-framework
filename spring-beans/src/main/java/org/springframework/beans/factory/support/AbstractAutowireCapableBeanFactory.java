@@ -603,7 +603,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Initialize the bean instance.
 		Object exposedObject = bean;
 		try {
-			//Ioc，将各个属性值注入，如果依赖其他的bean属性，递归初始化依赖的bean
+			//Ioc，遍历所有属性，如果是依赖其他的bean，调用beanFacotory.getBean()获取后注入到属性中
 			populateBean(beanName, mbd, instanceWrapper);
 			//调用初始化方法
 			exposedObject = initializeBean(beanName, exposedObject, mbd);

@@ -76,6 +76,7 @@ public class XmlBeanFactory extends DefaultListableBeanFactory {
 	 */
 	public XmlBeanFactory(Resource resource, BeanFactory parentBeanFactory) throws BeansException {
 		super(parentBeanFactory);
+		// [my comments] 使用XmlBeanDefinitionReader加载applicaton.xml中配置的bean
 		this.reader.loadBeanDefinitions(resource);
 	}
 

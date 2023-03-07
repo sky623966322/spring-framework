@@ -249,12 +249,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			String name, @Nullable Class<T> requiredType, @Nullable Object[] args, boolean typeCheckOnly)
 			throws BeansException {
 
-		//1.name很可能是alias别名，也可能是"&aa"的FactoryBean（不是很懂）
+		// [my comments] 1.name很可能是alias别名。在加载xml时，也会扫描所有的<alias>标签，
+		// 以<alias, name>为键值对放入到aliasMap中。如果此处name为alias，则先从键值对中获取真的beanName。
+		// 2.也可能是"&car"的FactoryBean，则
+		//
 		String beanName = transformedBeanName(name);
 		Object beanInstance;
 
 		// Eagerly check singleton cache for manually registered singletons.
-		//2.尝试从缓存中加载单例
+		//2.尝试从缓存中加载单例。A - > B -> A循环依赖时，第二次获取A时就从缓存中获取
 		Object sharedInstance = getSingleton(beanName);
 		if (sharedInstance != null && args == null) {
 			if (logger.isTraceEnabled()) {
@@ -339,7 +342,6 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 
 				// Create bean instance.
-				//8.针对不同的scope创建bean
 				if (mbd.isSingleton()) {
 					sharedInstance = getSingleton(beanName, () -> {
 						try {

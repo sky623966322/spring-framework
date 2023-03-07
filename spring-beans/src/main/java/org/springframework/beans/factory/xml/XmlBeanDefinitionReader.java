@@ -307,6 +307,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 */
 	@Override
 	public int loadBeanDefinitions(Resource resource) throws BeanDefinitionStoreException {
+		// [my comments] EncodedResource 可以在new的时候指定Charset（字符集），Encoding（编码），可以看getReader方法
 		return loadBeanDefinitions(new EncodedResource(resource));
 	}
 
@@ -325,6 +326,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 		Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
 
+		// [my comments] 将encodeResource添加到ThreadLocal中
 		if (!currentResources.add(encodedResource)) {
 			throw new BeanDefinitionStoreException(
 					"Detected cyclic loading of " + encodedResource + " - check your import definitions!");
@@ -332,9 +334,11 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 		try (InputStream inputStream = encodedResource.getResource().getInputStream()) {
 			InputSource inputSource = new InputSource(inputStream);
+			// [my comments] 如果encodeResource指定了编码，设置到inputSource中
 			if (encodedResource.getEncoding() != null) {
 				inputSource.setEncoding(encodedResource.getEncoding());
 			}
+			//  [my comments] 开始指定核心加载流程
 			return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
 		}
 		catch (IOException ex) {
@@ -387,7 +391,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			throws BeanDefinitionStoreException {
 
 		try {
+			// [my comments] 解析xml得到Document
 			Document doc = doLoadDocument(inputSource, resource);
+			// [my comments] 开始注册bean
 			int count = registerBeanDefinitions(doc, resource);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Loaded " + count + " bean definitions from " + resource);
@@ -506,8 +512,10 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see BeanDefinitionDocumentReader#registerBeanDefinitions
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
+		// [my comments] 创建DefaultBeanDefinitionDocumentReader
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
 		int countBefore = getRegistry().getBeanDefinitionCount();
+		// [my comments] 真正的处理注册
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}
